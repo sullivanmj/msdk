@@ -1082,8 +1082,8 @@ int MXC_I2C_RevA_MasterTransactionDMA(mxc_i2c_reva_req_t *req, mxc_dma_regs_t *d
     MXC_I2C_SetRXThreshold((mxc_i2c_regs_t *)i2c, 1);
 
     states[i2cNum].req = req;
-    states[i2cNum].writeDone = 0;
-    states[i2cNum].readDone = 0;
+    states[i2cNum].writeDone = req->tx_buf == NULL;
+    states[i2cNum].readDone = req->rx_buf == NULL;
 
     // If MXC_I2C_DMA_Init(...) was not already called, then configure both DMA TX/RXchannels by default.
     if (states[i2cNum].dma_initialized == false) {
@@ -1122,11 +1122,16 @@ int MXC_I2C_RevA_MasterTransactionDMA(mxc_i2c_reva_req_t *req, mxc_dma_regs_t *d
                 i2c->rxctrl1 = req->rx_len; // 0 for 256, otherwise number of bytes to read
             }
 
+            if (req->tx_buf == NULL) {
+                i2c->fifo = (req->addr << 1) |= 0x1;
+                i2c->mstctrl |= MXC_F_I2C_REVA_MSTCTRL_START;
+            }
+
             MXC_I2C_Start((mxc_i2c_regs_t *)i2c); // Start or Restart as needed
 
             while (i2c->mstctrl & MXC_F_I2C_REVA_MSTCTRL_RESTART) {}
 
-            i2c->fifo = ((req->addr) << 1) | 0x1; // Load the slave address with write bit set
+            i2c->fifo = ((req->addr) << 1) | 0x1; // Load the slave address with read bit set
 
 #if TARGET_NUM == 32665
             MXC_I2C_ReadRXFIFODMA((mxc_i2c_regs_t *)i2c, req->rx_buf, req->rx_len, NULL, dma);
