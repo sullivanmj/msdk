@@ -1123,7 +1123,7 @@ int MXC_I2C_RevA_MasterTransactionDMA(mxc_i2c_reva_req_t *req, mxc_dma_regs_t *d
             }
 
             if (req->tx_buf == NULL) {
-                i2c->fifo = (req->addr << 1) |= 0x1;
+                i2c->fifo = (req->addr << 1) | 0x1;
                 i2c->mstctrl |= MXC_F_I2C_REVA_MSTCTRL_START;
             }
 
