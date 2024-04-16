@@ -1122,16 +1122,11 @@ int MXC_I2C_RevA_MasterTransactionDMA(mxc_i2c_reva_req_t *req, mxc_dma_regs_t *d
                 i2c->rxctrl1 = req->rx_len; // 0 for 256, otherwise number of bytes to read
             }
 
-            if (req->tx_buf == NULL) {
-                i2c->fifo = (req->addr << 1) | 0x1;
-                i2c->mstctrl |= MXC_F_I2C_REVA_MSTCTRL_START;
-            }
-
             MXC_I2C_Start((mxc_i2c_regs_t *)i2c); // Start or Restart as needed
 
             while (i2c->mstctrl & MXC_F_I2C_REVA_MSTCTRL_RESTART) {}
 
-            i2c->fifo = ((req->addr) << 1) | 0x1; // Load the slave address with read bit set
+            i2c->fifo = ((req->addr) << 1) | 0x1; // Load the slave address with write bit set
 
 #if TARGET_NUM == 32665
             MXC_I2C_ReadRXFIFODMA((mxc_i2c_regs_t *)i2c, req->rx_buf, req->rx_len, NULL, dma);
