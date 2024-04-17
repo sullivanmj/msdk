@@ -1082,8 +1082,8 @@ int MXC_I2C_RevA_MasterTransactionDMA(mxc_i2c_reva_req_t *req, mxc_dma_regs_t *d
     MXC_I2C_SetRXThreshold((mxc_i2c_regs_t *)i2c, 1);
 
     states[i2cNum].req = req;
-    states[i2cNum].writeDone = req->tx_buf == NULL;
-    states[i2cNum].readDone = req->rx_buf == NULL;
+    states[i2cNum].writeDone = 0;
+    states[i2cNum].readDone = req->rx_len == 0; // nothing to read
 
     // If MXC_I2C_DMA_Init(...) was not already called, then configure both DMA TX/RXchannels by default.
     if (states[i2cNum].dma_initialized == false) {
